@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cipher Duel — Word Guessing Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    min-height: 100vh;
+    background: #0a0f16;
+    background-image: radial-gradient(circle at 20% 20%, #121b26 0%, #0a0f16 60%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    font-family: 'Inter', -apple-system, sans-serif;
+  }
+
+  #cd-root {
+    --ink: #0f1720;
+    --panel: #161f2b;
+    --panel-raised: #1c2733;
+    --border: #263241;
+    --text: #eef2f5;
+    --text-muted: #7c8b9a;
+    --gold: #e0a458;
+    --gold-dim: #6b5636;
+    --red: #c8635a;
+    --red-dim: #5a2f2c;
+    --green: #6fae7f;
+    --font-display: 'JetBrains Mono', monospace;
+    --font-body: 'Inter', -apple-system, sans-serif;
+
+    width: 100%;
+    max-width: 560px;
+    background: var(--ink);
+    color: var(--text);
+    font-family: var(--font-body);
+    border-radius: 16px;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .cd-header {
+    padding: 22px 28px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cd-eyebrow {
+    font-family: var(--font-display);
+    font-size: 11px;
+    letter-spacing: 0.18em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .cd-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
+  .cd-room-badge { font-family: var(--font-display); font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; }
+
+  .cd-body {
+    flex: 1;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .cd-lede { max-width: 420px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+
+  .cd-cards { display: flex; gap: 16px; width: 100%; max-width: 520px; flex-wrap: wrap; justify-content: center; }
+  .cd-card {
+    flex: 1; min-width: 200px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 22px 18px; cursor: pointer;
+    transition: border-color 0.15s ease, transform 0.15s ease;
+    text-align: left;
+  }
+  .cd-card:hover { border-color: var(--gold-dim); transform: translateY(-2px); }
+  .cd-card-icon { font-family: var(--font-display); font-size: 22px; color: var(--gold); margin-bottom: 10px; }
+  .cd-card-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .cd-card-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+
+  .cd-field { width: 100%; max-width: 320px; text-align: left; }
+  .cd-field-label { font-family: var(--font-display); font-size: 10.5px; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 6px; display: block; }
+
+  .cd-input {
+    background: var(--panel-raised); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--font-display); font-size: 16px; letter-spacing: 0.04em;
+    padding: 12px 14px; border-radius: 8px; width: 100%; outline: none;
+  }
+  .cd-input.cd-input-center { text-align: center; letter-spacing: 0.08em; text-transform: uppercase; }
+  .cd-input:focus { border-color: var(--gold); }
+  .cd-input::placeholder { color: var(--text-muted); text-transform: none; letter-spacing: normal; }
+
+  .cd-btn {
+    font-family: var(--font-body); font-weight: 600; font-size: 14px;
+    padding: 11px 22px; border-radius: 8px; border: 1px solid var(--gold);
+    background: var(--gold); color: #1a1206; cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  .cd-btn:hover { opacity: 0.88; }
+  .cd-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .cd-btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); font-weight: 500; }
+  .cd-btn-ghost:hover { color: var(--text); border-color: var(--text-muted); opacity: 1; }
+  .cd-btn-whatsapp { background: #25D366; border-color: #25D366; color: #06210f; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+
+  .cd-link-row { display: flex; gap: 8px; width: 100%; max-width: 380px; align-items: center; }
+  .cd-link-box {
+    flex: 1; background: var(--panel-raised); border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 12px; font-family: var(--font-display); font-size: 11.5px; color: var(--text-muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: left;
+  }
+
+  .cd-error { color: var(--red); font-size: 13px; min-height: 16px; }
+  .cd-copied { color: var(--green); font-size: 12px; min-height: 14px; }
+
+  .cd-dial-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+  .cd-dial-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: var(--font-display); }
+  .cd-dial-num { font-size: 20px; font-weight: 700; }
+  .cd-dial-sub { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; }
+
+  .cd-play-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+
+  .cd-players-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .cd-chip {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
+    padding: 6px 14px; font-family: var(--font-display); font-size: 11.5px; color: var(--text-muted);
+  }
+  .cd-chip.me { border-color: var(--gold-dim); color: var(--gold); }
+  .cd-chip.live { border-color: var(--green); color: var(--green); }
+  .cd-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+  .cd-chip.me .cd-chip-dot { background: var(--gold); }
+  .cd-chip.live .cd-chip-dot { background: var(--green); animation: cd-pulse 1.4s ease infinite; }
+  @keyframes cd-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  .cd-status-row { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; justify-content: center; }
+  .cd-status-text { text-align: left; }
+  .cd-status-role { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
+  .cd-status-msg { font-size: 13.5px; color: var(--text-muted); margin-top: 4px; max-width: 260px; }
+
+  .cd-word-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .cd-tile {
+    width: 38px; height: 46px; border-bottom: 3px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  }
+  .cd-tile.revealed { border-color: var(--gold); animation: cd-flip 0.4s ease; }
+  .cd-tile.gap { border-bottom: none; width: 18px; }
+  @keyframes cd-flip { 0% { transform: rotateX(90deg); opacity: 0; } 100% { transform: rotateX(0deg); opacity: 1; } }
+
+  .cd-keyboard { display: flex; flex-direction: column; gap: 7px; align-items: center; }
+  .cd-krow { display: flex; gap: 6px; }
+  .cd-key {
+    width: 32px; height: 38px; border-radius: 6px; border: 1px solid var(--border);
+    background: var(--panel-raised); color: var(--text);
+    font-family: var(--font-display); font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: transform 0.1s ease;
+  }
+  .cd-key:hover:not(:disabled) { border-color: var(--gold); transform: translateY(-1px); }
+  .cd-key:disabled { cursor: default; opacity: 0.32; }
+  .cd-key.correct { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .cd-key.wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+
+  .cd-guessed-line { font-family: var(--font-display); font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; }
+
+  .cd-banner { padding: 14px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; }
+  .cd-banner.win { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+  .cd-banner.lose { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+
+  .cd-footer-note { font-size: 11.5px; color: var(--text-muted); max-width: 380px; line-height: 1.5; }
+
+  .cd-loading { font-family: var(--font-display); font-size: 13px; color: var(--text-muted); }
+  .cd-spin {
+    width: 16px; height: 16px; border: 2px solid var(--border); border-top-color: var(--gold);
+    border-radius: 50%; display: inline-block; vertical-align: middle; margin-right: 8px;
+    animation: cd-spin 0.8s linear infinite;
+  }
+  @keyframes cd-spin { to { transform: rotate(360deg); } }
+
+  @media (max-width: 480px) {
+    .cd-key { width: 27px; height: 34px; font-size: 11px; }
+    .cd-tile { width: 30px; height: 40px; font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="cd-root">
+  <div class="cd-header">
+    <div>
+      <div class="cd-eyebrow">Two-Player Word Break</div>
+      <div class="cd-title">CIPHER DUEL</div>
+    </div>
+    <div class="cd-room-badge" id="cd-room-badge"></div>
+  </div>
+  <div class="cd-body" id="cd-body"><div class="cd-loading"><span class="cd-spin"></span>Connecting…</div></div>
+</div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js';
+import {
+  getFirestore, doc, setDoc, getDoc, onSnapshot
+} from 'https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js';
+
+// =====================================================================
+// 1) PASTE YOUR FIREBASE CONFIG HERE
+//    Firebase console -> Project settings -> General -> "Your apps" -> Web app
+// =====================================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDMn3w36WyNROI1YnjprMf9kiOt9dLYikk",
+  authDomain: "cipher-duel-8e605.firebaseapp.com",
+  projectId: "cipher-duel-8e605",
+  storageBucket: "cipher-duel-8e605.firebasestorage.app",
+  messagingSenderId: "678847899921",
+  appId: "1:678847899921:web:fb1689b2d56ee416f604b0"
+};
+// =====================================================================
+
+let firebaseReady = false;
+let db = null;
+try {
+  const fbApp = initializeApp(firebaseConfig);
+  db = getFirestore(fbApp);
+  firebaseReady = firebaseConfig.apiKey !== "YOUR_API_KEY";
+} catch (e) {
+  firebaseReady = false;
+}
+
+const KEYROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
+const MAX_WRONG = 8;
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+const body = document.getElementById('cd-body');
+const roomBadge = document.getElementById('cd-room-badge');
+
+let inviteCode = '';
+try {
+  const hash = window.location.hash || '';
+  const m = hash.match(/room=([A-Z0-9]{4})/i);
+  if (m) inviteCode = m[1].toUpperCase();
+} catch (e) {}
+
+let phase = inviteCode ? 'guestJoinFromLink' : 'lobby';
+let role = null;
+let roomCode = '';
+let myPhone = '';
+let room = null;
+let errorMsg = '';
+let copiedMsg = '';
+let unsubscribe = null;
+let busy = false;
+
+function genCode() {
+  let c = '';
+  for (let i = 0; i < 4; i++) c += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
+  return c;
+}
+
+function roomRef(code) { return doc(db, 'rooms', code); }
+
+async function saveRoom(code, data) {
+  await setDoc(roomRef(code), data);
+}
+
+async function loadRoomOnce(code) {
+  try {
+    const snap = await getDoc(roomRef(code));
+    return snap.exists() ? snap.data() : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+function stopListening() {
+  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
+}
+
+function startListening(code) {
+  stopListening();
+  unsubscribe = onSnapshot(roomRef(code), (snap) => {
+    if (snap.exists()) { room = snap.data(); render(); }
+  });
+}
+
+function revealedWord(word, guessed) {
+  return word.split('').map(ch => {
+    if (ch === ' ') return { ch: ' ', gap: true };
+    return { ch: guessed.includes(ch) ? ch : '', gap: false };
+  });
+}
+
+function isWon(word, guessed) {
+  return word.split('').every(ch => ch === ' ' || guessed.includes(ch));
+}
+
+function maskPhone(p) {
+  if (!p) return '—';
+  const clean = p.replace(/\s+/g, '');
+  if (clean.length <= 5) return clean;
+  const head = clean.slice(0, 3);
+  const tail = clean.slice(-2);
+  const dots = '•'.repeat(Math.max(2, Math.min(5, clean.length - 5)));
+  return head + dots + tail;
+}
+
+function inviteLink(code) {
+  const base = window.location.href.split('#')[0];
+  return base + '#room=' + code;
+}
+
+async function submitGuess(letter) {
+  if (!room || busy) return;
+  if (room.guessedLetters.includes(letter)) return;
+  if (room.status !== 'playing') return;
+  busy = true;
+  const guessedLetters = [...room.guessedLetters, letter];
+  const correct = room.word.includes(letter);
+  const wrongGuesses = correct ? room.wrongGuesses : [...room.wrongGuesses, letter];
+  let status = 'playing';
+  if (isWon(room.word, guessedLetters)) status = 'won';
+  else if (wrongGuesses.length >= MAX_WRONG) status = 'lost';
+  room = { ...room, guessedLetters, wrongGuesses, status };
+  render();
+  await saveRoom(roomCode, room);
+  busy = false;
+}
+
+async function createRoom(phone, word) {
+  const code = genCode();
+  const data = {
+    word: word.trim().toUpperCase(),
+    hostPhone: phone.trim(),
+    guestPhone: '',
+    guessedLetters: [],
+    wrongGuesses: [],
+    status: 'waiting',
+    guestJoined: false,
+    createdAt: Date.now()
+  };
+  await saveRoom(code, data);
+  roomCode = code;
+  role = 'host';
+  myPhone = phone.trim();
+  room = data;
+  phase = 'hostPlay';
+  startListening(code);
+  render();
+}
+
+async function joinRoom(code, phone) {
+  errorMsg = '';
+  render();
+  const data = await loadRoomOnce(code);
+  if (!data) {
+    errorMsg = 'No round found with that code. Double check it with your opponent.';
+    render();
+    return;
+  }
+  data.guestJoined = true;
+  data.guestPhone = phone.trim();
+  if (data.status === 'waiting') data.status = 'playing';
+  roomCode = code;
+  role = 'guest';
+  myPhone = phone.trim();
+  room = data;
+  phase = 'guestPlay';
+  await saveRoom(code, data);
+  startListening(code);
+  render();
+}
+
+async function newRound() {
+  phase = 'hostSetup';
+  stopListening();
+  render();
+}
+
+function leave() {
+  stopListening();
+  phase = 'lobby';
+  role = null;
+  roomCode = '';
+  room = null;
+  errorMsg = '';
+  try { window.location.hash = ''; } catch (e) {}
+  render();
+}
+
+function dialSVG(wrongCount) {
+  const pct = Math.min(wrongCount / MAX_WRONG, 1);
+  const r = 42, c = 2 * Math.PI * r;
+  const offset = c * (1 - pct);
+  const danger = pct >= 0.75;
+  return `
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="#263241" stroke-width="8"/>
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="${danger ? '#c8635a' : '#e0a458'}"
+        stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${offset}"
+        transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;"/>
+    </svg>`;
+}
+
+function copyToClipboard(text) {
+  try {
+    navigator.clipboard.writeText(text).then(() => {
+      copiedMsg = 'Link copied!';
+      render();
+      setTimeout(() => { copiedMsg = ''; render(); }, 1800);
+    }).catch(fallbackCopy);
+  } catch (e) {
+    fallbackCopy();
+  }
+  function fallbackCopy() {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); copiedMsg = 'Link copied!'; } catch (e2) { copiedMsg = 'Copy failed — select and copy manually.'; }
+    document.body.removeChild(ta);
+    render();
+    setTimeout(() => { copiedMsg = ''; render(); }, 1800);
+  }
+}
+
+function renderSetupNeeded() {
+  roomBadge.textContent = '';
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">SETUP NEEDED</div>
+    <div class="cd-lede">This app needs a Firebase project connected before it can go live. Open <strong>index.html</strong> and paste your Firebase config into the <code>firebaseConfig</code> object near the top of the script &mdash; see README.md for the exact steps.</div>
+  `;
+}
+
+function renderLobby() {
+  roomBadge.textContent = '';
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">A LETTER-BY-LETTER GUESSING GAME</div>
+    <div class="cd-lede">One player locks in a secret word. The other breaks it open one letter at a time, with every guess confirmed live &mdash; correct, wrong, or exactly where it lands.</div>
+    <div class="cd-cards">
+      <div class="cd-card" id="cd-host-card">
+        <div class="cd-card-icon">&#9673;</div>
+        <div class="cd-card-title">Set the word</div>
+        <div class="cd-card-desc">Lock in a secret word and get a link to invite your opponent on WhatsApp.</div>
+      </div>
+      <div class="cd-card" id="cd-join-card">
+        <div class="cd-card-icon">&#9670;</div>
+        <div class="cd-card-title">Break the code</div>
+        <div class="cd-card-desc">Enter the code you were given and start guessing letters.</div>
+      </div>
+    </div>
+  `;
+  body.querySelector('#cd-host-card').onclick = () => { phase = 'hostSetup'; render(); };
+  body.querySelector('#cd-join-card').onclick = () => { phase = 'guestJoin'; render(); };
+}
+
+function renderHostSetup() {
+  roomBadge.textContent = '';
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">STEP 1 &middot; LOCK IN YOUR WORD</div>
+    <div class="cd-lede">Enter your mobile number as your player ID, then pick a word or short phrase. Your opponent won't see the word &mdash; only its length and blanks.</div>
+    <div class="cd-field">
+      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
+      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+    </div>
+    <div class="cd-field">
+      <span class="cd-field-label">SECRET WORD OR PHRASE</span>
+      <input class="cd-input" id="cd-word-input" placeholder="e.g. RECONCILIATION" maxlength="24" autocomplete="off" />
+    </div>
+    <div class="cd-error" id="cd-error">${errorMsg}</div>
+    <div style="display:flex; gap:10px;">
+      <button class="cd-btn" id="cd-lock-btn">Lock word &amp; get invite link</button>
+      <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Back</button>
+    </div>
+  `;
+  const phoneInput = body.querySelector('#cd-phone-input');
+  const wordInput = body.querySelector('#cd-word-input');
+  phoneInput.value = myPhone;
+  phoneInput.focus();
+  wordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') lock(); });
+  body.querySelector('#cd-lock-btn').onclick = lock;
+  body.querySelector('#cd-back-btn').onclick = leave;
+
+  function lock() {
+    const phone = phoneInput.value.trim();
+    const val = wordInput.value.trim();
+    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
+      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
+      render();
+      return;
+    }
+    if (!/^[A-Za-z ]{2,24}$/.test(val)) {
+      errorMsg = 'Use letters only for the word (2-24 characters, spaces allowed for phrases).';
+      render();
+      return;
+    }
+    errorMsg = '';
+    createRoom(phone, val);
+  }
+}
+
+function renderGuestJoin() {
+  roomBadge.textContent = '';
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">STEP 1 &middot; ENTER THE CODE</div>
+    <div class="cd-lede">Ask your opponent for their 4-character room code, or open the invite link they sent you.</div>
+    <div class="cd-field">
+      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
+      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+    </div>
+    <div class="cd-field">
+      <span class="cd-field-label">ROOM CODE</span>
+      <input class="cd-input cd-input-center" id="cd-code-input" placeholder="CODE" maxlength="4" autocomplete="off" />
+    </div>
+    <div class="cd-error" id="cd-error">${errorMsg}</div>
+    <div style="display:flex; gap:10px;">
+      <button class="cd-btn" id="cd-join-btn">Join round</button>
+      <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Back</button>
+    </div>
+  `;
+  const phoneInput = body.querySelector('#cd-phone-input');
+  const codeInput = body.querySelector('#cd-code-input');
+  phoneInput.value = myPhone;
+  phoneInput.focus();
+  codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.toUpperCase(); });
+  codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  body.querySelector('#cd-join-btn').onclick = go;
+  body.querySelector('#cd-back-btn').onclick = leave;
+
+  function go() {
+    const phone = phoneInput.value.trim();
+    const val = codeInput.value.trim().toUpperCase();
+    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
+      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
+      render();
+      return;
+    }
+    if (val.length !== 4) { errorMsg = 'Codes are 4 characters.'; render(); return; }
+    errorMsg = '';
+    joinRoom(val, phone);
+  }
+}
+
+function renderGuestJoinFromLink() {
+  roomBadge.textContent = 'ROOM ' + inviteCode;
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">YOU'VE BEEN INVITED</div>
+    <div class="cd-lede">Someone locked in a word and challenged you to crack it. Enter your mobile number to join room <strong style="color:var(--gold)">${inviteCode}</strong>.</div>
+    <div class="cd-field">
+      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
+      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+    </div>
+    <div class="cd-error" id="cd-error">${errorMsg}</div>
+    <div style="display:flex; gap:10px;">
+      <button class="cd-btn" id="cd-join-btn">Join round</button>
+      <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Not your invite</button>
+    </div>
+  `;
+  const phoneInput = body.querySelector('#cd-phone-input');
+  phoneInput.focus();
+  phoneInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  body.querySelector('#cd-join-btn').onclick = go;
+  body.querySelector('#cd-back-btn').onclick = leave;
+
+  function go() {
+    const phone = phoneInput.value.trim();
+    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
+      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
+      render();
+      return;
+    }
+    errorMsg = '';
+    joinRoom(inviteCode, phone);
+  }
+}
+
+function renderPlay() {
+  roomBadge.textContent = 'ROOM ' + roomCode;
+  const wrongCount = room.wrongGuesses.length;
+  const tiles = revealedWord(room.word, room.guessedLetters);
+  const won = room.status === 'won';
+  const lost = room.status === 'lost';
+  const waiting = room.status === 'waiting';
+
+  const tileHtml = tiles.map(t => t.gap
+    ? `<div class="cd-tile gap"></div>`
+    : `<div class="cd-tile ${t.ch ? 'revealed' : ''}">${t.ch}</div>`
+  ).join('');
+
+  const keyboardHtml = KEYROWS.map(row => `
+    <div class="cd-krow">
+      ${row.split('').map(letter => {
+        const guessed = room.guessedLetters.includes(letter);
+        const wrong = guessed && !room.word.includes(letter);
+        const correct = guessed && room.word.includes(letter);
+        const cls = wrong ? 'wrong' : correct ? 'correct' : '';
+        const disabled = (role !== 'guest') || guessed || room.status !== 'playing';
+        return `<button class="cd-key ${cls}" data-letter="${letter}" ${disabled ? 'disabled' : ''}>${letter}</button>`;
+      }).join('')}
+    </div>
+  `).join('');
+
+  let banner = '';
+  if (won) banner = `<div class="cd-banner win">&#10003; Word cracked: ${room.word}</div>`;
+  else if (lost) banner = `<div class="cd-banner lose">&#10005; Out of guesses. The word was ${room.word}</div>`;
+
+  const roleLabel = role === 'host' ? 'YOU SET THE WORD' : 'YOU ARE GUESSING';
+  let statusMsg = '';
+  if (role === 'host' && waiting) statusMsg = 'Send the invite link below. The board updates live the instant your opponent joins.';
+  else if (role === 'host') statusMsg = 'Watching live — every guess is confirmed automatically against your word.';
+  else if (role === 'guest') statusMsg = 'Pick a letter. You\'ll know instantly if it\'s in the word and exactly where.';
+
+  const link = inviteLink(roomCode);
+  const waText = encodeURIComponent(`I locked in a word for Cipher Duel — crack it if you can. Join here: ${link} (room code ${roomCode})`);
+  const inviteBlock = (role === 'host' && waiting) ? `
+    <div class="cd-field" style="max-width:380px;">
+      <span class="cd-field-label">INVITE LINK</span>
+      <div class="cd-link-row">
+        <div class="cd-link-box">${link}</div>
+        <button class="cd-btn cd-btn-ghost" id="cd-copy-btn" style="padding:10px 14px;">Copy</button>
+      </div>
+      <div class="cd-copied">${copiedMsg}</div>
+    </div>
+    <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener" class="cd-btn cd-btn-whatsapp" id="cd-wa-btn">
+      Invite via WhatsApp
+    </a>
+  ` : '';
+
+  const playersRow = `
+    <div class="cd-players-row">
+      <div class="cd-chip ${role === 'host' ? 'me' : ''} live"><span class="cd-chip-dot"></span>HOST ${maskPhone(room.hostPhone)}</div>
+      <div class="cd-chip ${role === 'guest' ? 'me' : ''} ${room.guestJoined ? 'live' : ''}"><span class="cd-chip-dot"></span>GUESSER ${room.guestJoined ? maskPhone(room.guestPhone) : 'waiting…'}</div>
+    </div>
+  `;
+
+  body.innerHTML = `
+    <div class="cd-play-wrap">
+      ${playersRow}
+
+      ${inviteBlock}
+
+      ${!waiting ? `
+      <div class="cd-status-row">
+        <div class="cd-dial-wrap">
+          ${dialSVG(wrongCount)}
+          <div class="cd-dial-label">
+            <div class="cd-dial-num">${wrongCount}/${MAX_WRONG}</div>
+            <div class="cd-dial-sub">WRONG</div>
+          </div>
+        </div>
+        <div class="cd-status-text">
+          <div class="cd-status-role">${roleLabel}</div>
+          <div class="cd-status-msg">${statusMsg}</div>
+        </div>
+      </div>
+
+      ${banner}
+
+      <div class="cd-word-row">${tileHtml}</div>
+
+      ${role === 'guest' && !won && !lost ? `<div class="cd-keyboard">${keyboardHtml}</div>` : ''}
+
+      ${room.guessedLetters.length ? `<div class="cd-guessed-line">GUESSED: ${room.guessedLetters.join(' ')}</div>` : ''}
+      ` : ''}
+
+      <div style="display:flex; gap:10px;">
+        ${role === 'host' && (won || lost) ? `<button class="cd-btn" id="cd-newround-btn">Set a new word</button>` : ''}
+        <button class="cd-btn cd-btn-ghost" id="cd-leave-btn">Leave round</button>
+      </div>
+
+      <div class="cd-footer-note">Mobile numbers are self-entered player IDs, not SMS-verified — they're just here to tell the two of you apart. Game state syncs live via Firestore, so both of you see updates within a second or two, on any device, anywhere.</div>
+    </div>
+  `;
+
+  if (role === 'guest') {
+    body.querySelectorAll('.cd-key').forEach(btn => {
+      btn.onclick = () => submitGuess(btn.dataset.letter);
+    });
+  }
+  const copyBtn = body.querySelector('#cd-copy-btn');
+  if (copyBtn) copyBtn.onclick = () => copyToClipboard(link);
+  const newRoundBtn = body.querySelector('#cd-newround-btn');
+  if (newRoundBtn) newRoundBtn.onclick = newRound;
+  body.querySelector('#cd-leave-btn').onclick = leave;
+}
+
+function render() {
+  if (!firebaseReady) { renderSetupNeeded(); return; }
+  if (phase === 'lobby') renderLobby();
+  else if (phase === 'hostSetup') renderHostSetup();
+  else if (phase === 'guestJoin') renderGuestJoin();
+  else if (phase === 'guestJoinFromLink') renderGuestJoinFromLink();
+  else if (phase === 'hostPlay' || phase === 'guestPlay') renderPlay();
+}
+
+render();
+</script>
+</body>
+</html>
