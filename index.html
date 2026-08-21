@@ -33,9 +33,11 @@
     --red: #c8635a;
     --red-dim: #5a2f2c;
     --green: #6fae7f;
+    --green-dim: #294031;
     --font-display: 'JetBrains Mono', monospace;
     --font-body: 'Inter', -apple-system, sans-serif;
 
+    position: relative;
     width: 100%;
     max-width: 560px;
     background: var(--ink);
@@ -50,14 +52,20 @@
     border: 1px solid var(--border);
   }
 
+  #cd-root.shake-lose { animation: cd-key-shake 0.55s ease; }
+
+  .cd-confetti-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 6; }
+  .cd-confetti-piece { position: absolute; top: -12px; width: 8px; height: 14px; border-radius: 2px; opacity: 0.95; animation-name: cd-confetti-fall; animation-timing-function: ease-in; animation-fill-mode: forwards; }
+  @keyframes cd-confetti-fall { 0% { transform: translateY(-20px) rotate(0deg); opacity: 1; } 100% { transform: translateY(460px) rotate(560deg); opacity: 0; } }
+
   .cd-header {
-    padding: 22px 28px 16px;
+    padding: 18px 22px 14px;
     border-bottom: 1px solid var(--border);
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
   }
   .cd-eyebrow {
     font-family: var(--font-display);
@@ -69,18 +77,31 @@
   .cd-title { font-family: var(--font-display); font-size: 20px; font-weight: 700; letter-spacing: 0.02em; }
   .cd-room-badge { font-family: var(--font-display); font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; }
 
+  .cd-header-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+  .cd-stat-badge { font-family: var(--font-display); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .cd-stat-badge b { color: var(--gold); }
+  .cd-icon-btn {
+    width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--panel-raised); color: var(--text-muted); font-size: 14px;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .cd-icon-btn:hover { border-color: var(--gold); color: var(--gold); }
+  .cd-icon-btn.active { border-color: var(--green); color: var(--green); }
+
   .cd-body {
     flex: 1;
-    padding: 28px;
+    padding: 26px 28px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 18px;
     align-items: center;
     justify-content: center;
     text-align: center;
   }
 
   .cd-lede { max-width: 420px; color: var(--text-muted); font-size: 14px; line-height: 1.6; }
+  .cd-sub-lede { max-width: 420px; color: var(--text-muted); font-size: 12px; }
 
   .cd-cards { display: flex; gap: 16px; width: 100%; max-width: 520px; flex-wrap: wrap; justify-content: center; }
   .cd-card {
@@ -111,13 +132,16 @@
     font-family: var(--font-body); font-weight: 600; font-size: 14px;
     padding: 11px 22px; border-radius: 8px; border: 1px solid var(--gold);
     background: var(--gold); color: #1a1206; cursor: pointer;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.1s ease;
   }
   .cd-btn:hover { opacity: 0.88; }
+  .cd-btn:active { transform: scale(0.97); }
   .cd-btn:disabled { opacity: 0.35; cursor: not-allowed; }
   .cd-btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); font-weight: 500; }
   .cd-btn-ghost:hover { color: var(--text); border-color: var(--text-muted); opacity: 1; }
   .cd-btn-whatsapp { background: #25D366; border-color: #25D366; color: #06210f; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+
+  .cd-share-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 
   .cd-link-row { display: flex; gap: 8px; width: 100%; max-width: 380px; align-items: center; }
   .cd-link-box {
@@ -134,17 +158,18 @@
   .cd-dial-num { font-size: 20px; font-weight: 700; }
   .cd-dial-sub { font-size: 9px; color: var(--text-muted); letter-spacing: 0.1em; }
 
-  .cd-play-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .cd-play-wrap { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 18px; }
 
   .cd-players-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
   .cd-chip {
     display: flex; align-items: center; gap: 7px;
     background: var(--panel); border: 1px solid var(--border); border-radius: 999px;
     padding: 6px 14px; font-family: var(--font-display); font-size: 11.5px; color: var(--text-muted);
+    max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
   .cd-chip.me { border-color: var(--gold-dim); color: var(--gold); }
   .cd-chip.live { border-color: var(--green); color: var(--green); }
-  .cd-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); }
+  .cd-chip-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-muted); flex-shrink: 0; }
   .cd-chip.me .cd-chip-dot { background: var(--gold); }
   .cd-chip.live .cd-chip-dot { background: var(--green); animation: cd-pulse 1.4s ease infinite; }
   @keyframes cd-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
@@ -154,15 +179,26 @@
   .cd-status-role { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.12em; color: var(--gold); text-transform: uppercase; }
   .cd-status-msg { font-size: 13.5px; color: var(--text-muted); margin-top: 4px; max-width: 260px; }
 
+  .cd-toast-slot { min-height: 20px; font-family: var(--font-display); font-size: 12.5px; font-weight: 700; letter-spacing: 0.02em; }
+  .cd-toast-slot.correct { color: var(--green); }
+  .cd-toast-slot.wrong { color: var(--red); }
+  .cd-toast-slot.pop { animation: cd-toast-pop 0.5s ease; }
+  @keyframes cd-toast-pop { 0% { transform: translateY(-5px); opacity: 0; } 35% { opacity: 1; transform: translateY(0); } 100% { opacity: 1; } }
+
+  .cd-progress-track { width: 100%; max-width: 320px; height: 4px; background: var(--panel-raised); border-radius: 999px; overflow: hidden; }
+  .cd-progress-fill { height: 100%; background: var(--green); border-radius: 999px; transition: width 0.4s ease; }
+
   .cd-word-row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
   .cd-tile {
     width: 38px; height: 46px; border-bottom: 3px solid var(--border);
     display: flex; align-items: center; justify-content: center;
     font-family: var(--font-display); font-size: 22px; font-weight: 700;
   }
-  .cd-tile.revealed { border-color: var(--gold); animation: cd-flip 0.4s ease; }
+  .cd-tile.shown { border-color: var(--green); color: var(--green); }
+  .cd-tile.revealed { animation: cd-flip 0.45s ease, cd-tile-glow 0.9s ease; }
   .cd-tile.gap { border-bottom: none; width: 18px; }
   @keyframes cd-flip { 0% { transform: rotateX(90deg); opacity: 0; } 100% { transform: rotateX(0deg); opacity: 1; } }
+  @keyframes cd-tile-glow { 0% { text-shadow: 0 0 0 transparent; } 35% { text-shadow: 0 0 16px var(--green); } 100% { text-shadow: 0 0 0 transparent; } }
 
   .cd-keyboard { display: flex; flex-direction: column; gap: 7px; align-items: center; }
   .cd-krow { display: flex; gap: 6px; }
@@ -170,20 +206,23 @@
     width: 32px; height: 38px; border-radius: 6px; border: 1px solid var(--border);
     background: var(--panel-raised); color: var(--text);
     font-family: var(--font-display); font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: transform 0.1s ease;
+    cursor: pointer; transition: transform 0.1s ease, opacity 0.25s ease;
   }
   .cd-key:hover:not(:disabled) { border-color: var(--gold); transform: translateY(-1px); }
-  .cd-key:disabled { cursor: default; opacity: 0.32; }
-  .cd-key.correct { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
-  .cd-key.wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); }
-
-  .cd-guessed-line { font-family: var(--font-display); font-size: 12px; color: var(--text-muted); letter-spacing: 0.08em; }
+  .cd-key:disabled { cursor: default; }
+  .cd-key.correct { background: var(--green-dim); border-color: var(--green); color: var(--green); opacity: 1; }
+  .cd-key.correct.just-correct { animation: cd-key-pop 0.4s ease; }
+  .cd-key.wrong { background: var(--red-dim); border-color: var(--red); color: var(--red); opacity: 0.4; text-decoration: line-through; }
+  .cd-key.wrong.just-wrong { opacity: 1; text-decoration: none; animation: cd-key-shake 0.4s ease; }
+  @keyframes cd-key-pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+  @keyframes cd-key-shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
 
   .cd-banner { padding: 14px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; }
-  .cd-banner.win { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); }
+  .cd-banner.win { background: var(--gold-dim); color: var(--gold); border: 1px solid var(--gold); animation: cd-banner-pop 0.5s cubic-bezier(.34,1.56,.64,1); }
   .cd-banner.lose { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+  @keyframes cd-banner-pop { 0% { transform: scale(0.7); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); } }
 
-  .cd-footer-note { font-size: 11.5px; color: var(--text-muted); max-width: 380px; line-height: 1.5; }
+  .cd-footer-note { font-size: 11px; color: var(--text-muted); max-width: 380px; line-height: 1.5; }
 
   .cd-loading { font-family: var(--font-display); font-size: 13px; color: var(--text-muted); }
   .cd-spin {
@@ -192,6 +231,19 @@
     animation: cd-spin 0.8s linear infinite;
   }
   @keyframes cd-spin { to { transform: rotate(360deg); } }
+
+  .cd-history-list { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; text-align: left; }
+  .cd-history-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+  .cd-history-word { font-family: var(--font-display); font-weight: 700; font-size: 13px; }
+  .cd-history-meta { color: var(--text-muted); font-size: 11px; margin-top: 2px; }
+  .cd-history-result { font-family: var(--font-display); font-size: 10.5px; font-weight: 700; white-space: nowrap; }
+  .cd-history-result.cracked { color: var(--green); }
+  .cd-history-result.not-cracked { color: var(--red); }
+  .cd-history-empty { color: var(--text-muted); font-size: 13px; max-width: 320px; }
+
+  .cd-ad-slot { border-top: 1px solid var(--border); padding: 10px 20px 14px; text-align: center; }
+  .cd-ad-label { font-family: var(--font-display); font-size: 9px; letter-spacing: 0.14em; color: var(--text-muted); opacity: 0.55; margin-bottom: 6px; text-transform: uppercase; }
+  .cd-ad-box { min-height: 46px; border: 1px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--text-muted); padding: 6px 10px; }
 
   @media (max-width: 480px) {
     .cd-key { width: 27px; height: 34px; font-size: 11px; }
@@ -202,14 +254,25 @@
 <body>
 
 <div id="cd-root">
+  <div class="cd-confetti-layer" id="cd-confetti-layer"></div>
   <div class="cd-header">
     <div>
       <div class="cd-eyebrow">Two-Player Word Break</div>
       <div class="cd-title">CIPHER DUEL</div>
     </div>
-    <div class="cd-room-badge" id="cd-room-badge"></div>
+    <div class="cd-header-actions">
+      <div class="cd-stat-badge" id="cd-stat-badge"></div>
+      <button class="cd-icon-btn" id="cd-sound-toggle" title="Toggle sound">🔊</button>
+      <button class="cd-icon-btn" id="cd-history-toggle" title="Your rounds">☰</button>
+      <div class="cd-room-badge" id="cd-room-badge"></div>
+    </div>
   </div>
   <div class="cd-body" id="cd-body"><div class="cd-loading"><span class="cd-spin"></span>Connecting…</div></div>
+  <div class="cd-ad-slot">
+    <div class="cd-ad-label">Advertisement</div>
+    <!-- Swap this box for your ad network's tag/snippet (e.g. AdSense unit) -->
+    <div class="cd-ad-box" id="cd-ad-box">Ad space — 320×50</div>
+  </div>
 </div>
 
 <script type="module">
@@ -245,6 +308,10 @@ try {
 const KEYROWS = ['QWERTYUIOP', 'ASDFGHJKL', 'ZXCVBNM'];
 const MAX_WRONG = 8;
 const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const LS_PROFILE = 'cd_profile';
+const LS_STATS = 'cd_stats';
+const LS_HISTORY = 'cd_history';
+const LS_SOUND = 'cd_sound';
 
 const body = document.getElementById('cd-body');
 const roomBadge = document.getElementById('cd-room-badge');
@@ -257,40 +324,159 @@ try {
 } catch (e) {}
 
 let phase = inviteCode ? 'guestJoinFromLink' : 'lobby';
+let previousPhase = 'lobby';
 let role = null;
 let roomCode = '';
-let myPhone = '';
+let myName = '';
 let room = null;
 let errorMsg = '';
 let copiedMsg = '';
 let unsubscribe = null;
 let busy = false;
 
+let previousGuessedLetters = [];
+let lastCelebratedStatus = null;
+let resultRecorded = false;
+
+const profile = loadProfile();
+myName = profile.name || '';
+const stats = loadStats();
+const history = loadHistory();
+let soundOn = true;
+try { const v = localStorage.getItem(LS_SOUND); if (v !== null) soundOn = v === '1'; } catch (e) {}
+
+// ---------- local persistence ----------
+function loadProfile() {
+  try {
+    const raw = localStorage.getItem(LS_PROFILE);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  const id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : 'p-' + Math.random().toString(36).slice(2);
+  const p = { id, name: '' };
+  try { localStorage.setItem(LS_PROFILE, JSON.stringify(p)); } catch (e) {}
+  return p;
+}
+function saveProfileName(name) {
+  profile.name = name;
+  try { localStorage.setItem(LS_PROFILE, JSON.stringify(profile)); } catch (e) {}
+}
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(LS_STATS);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return { played: 0, cracked: 0, notCracked: 0, streak: 0, bestStreak: 0 };
+}
+function saveStats() { try { localStorage.setItem(LS_STATS, JSON.stringify(stats)); } catch (e) {} }
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(LS_HISTORY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+function pushHistory(entry) {
+  history.unshift(entry);
+  if (history.length > 30) history.length = 30;
+  try { localStorage.setItem(LS_HISTORY, JSON.stringify(history)); } catch (e) {}
+}
+function recordResult(result) {
+  stats.played++;
+  if (result === 'cracked') {
+    stats.cracked++; stats.streak++; stats.bestStreak = Math.max(stats.bestStreak, stats.streak);
+  } else {
+    stats.notCracked++; stats.streak = 0;
+  }
+  saveStats();
+  pushHistory({
+    code: roomCode,
+    word: room.word,
+    role,
+    result,
+    wrong: room.wrongGuesses.length,
+    ts: Date.now(),
+    opponent: role === 'host' ? (room.guestName || 'your opponent') : (room.hostName || 'your opponent')
+  });
+  updateHeaderChrome();
+}
+
+// ---------- sound ----------
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  return audioCtx;
+}
+function beep(freq, dur, type, delay, gain) {
+  try {
+    const ctx = getCtx();
+    const t0 = ctx.currentTime + (delay || 0);
+    const osc = ctx.createOscillator();
+    const g = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    g.gain.setValueAtTime(gain || 0.15, t0);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  } catch (e) {}
+}
+function playSound(kind) {
+  if (!soundOn) return;
+  if (kind === 'correct') { beep(660, 0.12, 'sine'); beep(880, 0.14, 'sine', 0.08); }
+  else if (kind === 'wrong') { beep(160, 0.22, 'sawtooth'); }
+  else if (kind === 'win') { [523, 659, 784, 1047].forEach((f, i) => beep(f, 0.16, 'triangle', i * 0.11)); }
+  else if (kind === 'lose') { [392, 330, 262].forEach((f, i) => beep(f, 0.22, 'sawtooth', i * 0.15)); }
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  try { localStorage.setItem(LS_SOUND, soundOn ? '1' : '0'); } catch (e) {}
+  updateHeaderChrome();
+  if (soundOn) playSound('correct');
+}
+
+// ---------- confetti / shake ----------
+function spawnConfetti() {
+  const layer = document.getElementById('cd-confetti-layer');
+  if (!layer) return;
+  const colors = ['#e0a458', '#6fae7f', '#c8635a', '#eef2f5', '#9ecbe0'];
+  const frag = document.createDocumentFragment();
+  for (let i = 0; i < 48; i++) {
+    const el = document.createElement('div');
+    el.className = 'cd-confetti-piece';
+    el.style.left = (Math.random() * 100) + '%';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDuration = (0.9 + Math.random() * 0.9) + 's';
+    el.style.animationDelay = (Math.random() * 0.35) + 's';
+    frag.appendChild(el);
+  }
+  layer.innerHTML = '';
+  layer.appendChild(frag);
+  setTimeout(() => { if (layer) layer.innerHTML = ''; }, 2200);
+}
+function shakeRoot() {
+  const rootEl = document.getElementById('cd-root');
+  if (!rootEl) return;
+  rootEl.classList.remove('shake-lose');
+  void rootEl.offsetWidth;
+  rootEl.classList.add('shake-lose');
+  setTimeout(() => rootEl.classList.remove('shake-lose'), 600);
+}
+
+// ---------- firestore helpers ----------
 function genCode() {
   let c = '';
   for (let i = 0; i < 4; i++) c += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
   return c;
 }
-
 function roomRef(code) { return doc(db, 'rooms', code); }
-
-async function saveRoom(code, data) {
-  await setDoc(roomRef(code), data);
-}
-
+async function saveRoom(code, data) { await setDoc(roomRef(code), data); }
 async function loadRoomOnce(code) {
   try {
     const snap = await getDoc(roomRef(code));
     return snap.exists() ? snap.data() : null;
-  } catch (e) {
-    return null;
-  }
+  } catch (e) { return null; }
 }
-
-function stopListening() {
-  if (unsubscribe) { unsubscribe(); unsubscribe = null; }
-}
-
+function stopListening() { if (unsubscribe) { unsubscribe(); unsubscribe = null; } }
 function startListening(code) {
   stopListening();
   unsubscribe = onSnapshot(roomRef(code), (snap) => {
@@ -304,25 +490,14 @@ function revealedWord(word, guessed) {
     return { ch: guessed.includes(ch) ? ch : '', gap: false };
   });
 }
-
 function isWon(word, guessed) {
   return word.split('').every(ch => ch === ' ' || guessed.includes(ch));
 }
-
-function maskPhone(p) {
-  if (!p) return '—';
-  const clean = p.replace(/\s+/g, '');
-  if (clean.length <= 5) return clean;
-  const head = clean.slice(0, 3);
-  const tail = clean.slice(-2);
-  const dots = '•'.repeat(Math.max(2, Math.min(5, clean.length - 5)));
-  return head + dots + tail;
-}
-
 function inviteLink(code) {
   const base = window.location.href.split('#')[0];
   return base + '#room=' + code;
 }
+function validName(v) { return /^.{2,24}$/.test((v || '').trim()); }
 
 async function submitGuess(letter) {
   if (!room || busy) return;
@@ -341,12 +516,14 @@ async function submitGuess(letter) {
   busy = false;
 }
 
-async function createRoom(phone, word) {
+async function createRoom(name, word) {
   const code = genCode();
   const data = {
     word: word.trim().toUpperCase(),
-    hostPhone: phone.trim(),
-    guestPhone: '',
+    hostName: name.trim(),
+    hostId: profile.id,
+    guestName: '',
+    guestId: '',
     guessedLetters: [],
     wrongGuesses: [],
     status: 'waiting',
@@ -356,14 +533,17 @@ async function createRoom(phone, word) {
   await saveRoom(code, data);
   roomCode = code;
   role = 'host';
-  myPhone = phone.trim();
+  myName = name.trim();
   room = data;
+  previousGuessedLetters = [];
+  lastCelebratedStatus = null;
+  resultRecorded = false;
   phase = 'hostPlay';
   startListening(code);
   render();
 }
 
-async function joinRoom(code, phone) {
+async function joinRoom(code, name) {
   errorMsg = '';
   render();
   const data = await loadRoomOnce(code);
@@ -373,12 +553,16 @@ async function joinRoom(code, phone) {
     return;
   }
   data.guestJoined = true;
-  data.guestPhone = phone.trim();
+  data.guestName = name.trim();
+  data.guestId = profile.id;
   if (data.status === 'waiting') data.status = 'playing';
   roomCode = code;
   role = 'guest';
-  myPhone = phone.trim();
+  myName = name.trim();
   room = data;
+  previousGuessedLetters = [];
+  lastCelebratedStatus = null;
+  resultRecorded = false;
   phase = 'guestPlay';
   await saveRoom(code, data);
   startListening(code);
@@ -402,15 +586,50 @@ function leave() {
   render();
 }
 
+function openHistory() { previousPhase = phase; phase = 'history'; render(); }
+function closeHistory() { phase = previousPhase || 'lobby'; render(); }
+
+// ---------- invite: share sheet + optional contact picker ----------
+async function shareInvite() {
+  const link = inviteLink(roomCode);
+  const text = (myName || 'A friend') + ' locked in a word for Cipher Duel — crack it if you can. Join room ' + roomCode + ':';
+  if (navigator.share) {
+    try { await navigator.share({ title: 'Cipher Duel', text, url: link }); } catch (e) { /* cancelled */ }
+  } else {
+    copyToClipboard(link);
+  }
+}
+async function pickContact() {
+  if (!(navigator.contacts && navigator.contacts.select)) return;
+  try {
+    const contacts = await navigator.contacts.select(['name', 'tel'], { multiple: false });
+    if (!contacts || !contacts.length) return;
+    const c = contacts[0];
+    const tel = (c.tel && c.tel[0]) ? c.tel[0].replace(/\s+/g, '') : '';
+    const contactName = (c.name && c.name[0]) ? c.name[0] : 'your opponent';
+    const link = inviteLink(roomCode);
+    const text = (myName || 'A friend') + ' challenged you to crack a secret word on Cipher Duel. Join room ' + roomCode + ': ' + link;
+    if (tel) {
+      window.location.href = 'sms:' + tel + '?body=' + encodeURIComponent(text);
+    } else {
+      copyToClipboard(link);
+      copiedMsg = 'Copied — send it to ' + contactName + ' yourself.';
+      render();
+    }
+  } catch (e) { /* cancelled */ }
+}
+
 function dialSVG(wrongCount) {
   const pct = Math.min(wrongCount / MAX_WRONG, 1);
   const r = 42, c = 2 * Math.PI * r;
   const offset = c * (1 - pct);
-  const danger = pct >= 0.75;
+  let stroke = '#6fae7f';
+  if (pct >= 0.75) stroke = '#c8635a';
+  else if (pct >= 0.4) stroke = '#e0a458';
   return `
     <svg width="100" height="100" viewBox="0 0 100 100">
       <circle cx="50" cy="50" r="${r}" fill="none" stroke="#263241" stroke-width="8"/>
-      <circle cx="50" cy="50" r="${r}" fill="none" stroke="${danger ? '#c8635a' : '#e0a458'}"
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="${stroke}"
         stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${offset}"
         transform="rotate(-90 50 50)" style="transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;"/>
     </svg>`;
@@ -440,6 +659,23 @@ function copyToClipboard(text) {
   }
 }
 
+function updateHeaderChrome() {
+  const badge = document.getElementById('cd-stat-badge');
+  if (badge) {
+    if (stats.played > 0) {
+      const streakTxt = stats.streak >= 2 ? ' · ' + stats.streak + '🔥' : '';
+      badge.innerHTML = '<b>' + stats.cracked + '</b>/' + stats.played + ' cracked' + streakTxt;
+    } else {
+      badge.innerHTML = '';
+    }
+  }
+  const soundBtn = document.getElementById('cd-sound-toggle');
+  if (soundBtn) {
+    soundBtn.textContent = soundOn ? '🔊' : '🔇';
+    soundBtn.classList.toggle('active', soundOn);
+  }
+}
+
 function renderSetupNeeded() {
   roomBadge.textContent = '';
   body.innerHTML = `
@@ -450,14 +686,18 @@ function renderSetupNeeded() {
 
 function renderLobby() {
   roomBadge.textContent = '';
+  const statLine = stats.played > 0
+    ? `<div class="cd-sub-lede">You've cracked ${stats.cracked} of ${stats.played} rounds${stats.streak >= 2 ? ' · on a ' + stats.streak + ' win streak 🔥' : ''}.</div>`
+    : '';
   body.innerHTML = `
     <div class="cd-eyebrow" style="opacity:0.7">A LETTER-BY-LETTER GUESSING GAME</div>
     <div class="cd-lede">One player locks in a secret word. The other breaks it open one letter at a time, with every guess confirmed live &mdash; correct, wrong, or exactly where it lands.</div>
+    ${statLine}
     <div class="cd-cards">
       <div class="cd-card" id="cd-host-card">
         <div class="cd-card-icon">&#9673;</div>
         <div class="cd-card-title">Set the word</div>
-        <div class="cd-card-desc">Lock in a secret word and get a link to invite your opponent on WhatsApp.</div>
+        <div class="cd-card-desc">Lock in a secret word and share the invite with anyone, straight from your device.</div>
       </div>
       <div class="cd-card" id="cd-join-card">
         <div class="cd-card-icon">&#9670;</div>
@@ -474,10 +714,10 @@ function renderHostSetup() {
   roomBadge.textContent = '';
   body.innerHTML = `
     <div class="cd-eyebrow" style="opacity:0.7">STEP 1 &middot; LOCK IN YOUR WORD</div>
-    <div class="cd-lede">Enter your mobile number as your player ID, then pick a word or short phrase. Your opponent won't see the word &mdash; only its length and blanks.</div>
+    <div class="cd-lede">Enter your name, then pick a word or short phrase. Your opponent won't see the word &mdash; only its length and blanks.</div>
     <div class="cd-field">
-      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
-      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+      <span class="cd-field-label">YOUR NAME</span>
+      <input class="cd-input" id="cd-name-input" placeholder="e.g. Vernon" maxlength="24" autocomplete="name" />
     </div>
     <div class="cd-field">
       <span class="cd-field-label">SECRET WORD OR PHRASE</span>
@@ -489,19 +729,20 @@ function renderHostSetup() {
       <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Back</button>
     </div>
   `;
-  const phoneInput = body.querySelector('#cd-phone-input');
+  const nameInput = body.querySelector('#cd-name-input');
   const wordInput = body.querySelector('#cd-word-input');
-  phoneInput.value = myPhone;
-  phoneInput.focus();
+  nameInput.value = myName;
+  (myName ? wordInput : nameInput).focus();
   wordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') lock(); });
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') wordInput.focus(); });
   body.querySelector('#cd-lock-btn').onclick = lock;
   body.querySelector('#cd-back-btn').onclick = leave;
 
   function lock() {
-    const phone = phoneInput.value.trim();
+    const name = nameInput.value.trim();
     const val = wordInput.value.trim();
-    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
-      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
+    if (!validName(name)) {
+      errorMsg = 'Enter your name (2-24 characters).';
       render();
       return;
     }
@@ -511,7 +752,8 @@ function renderHostSetup() {
       return;
     }
     errorMsg = '';
-    createRoom(phone, val);
+    saveProfileName(name);
+    createRoom(name, val);
   }
 }
 
@@ -521,8 +763,8 @@ function renderGuestJoin() {
     <div class="cd-eyebrow" style="opacity:0.7">STEP 1 &middot; ENTER THE CODE</div>
     <div class="cd-lede">Ask your opponent for their 4-character room code, or open the invite link they sent you.</div>
     <div class="cd-field">
-      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
-      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+      <span class="cd-field-label">YOUR NAME</span>
+      <input class="cd-input" id="cd-name-input" placeholder="e.g. Vernon" maxlength="24" autocomplete="name" />
     </div>
     <div class="cd-field">
       <span class="cd-field-label">ROOM CODE</span>
@@ -534,26 +776,24 @@ function renderGuestJoin() {
       <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Back</button>
     </div>
   `;
-  const phoneInput = body.querySelector('#cd-phone-input');
+  const nameInput = body.querySelector('#cd-name-input');
   const codeInput = body.querySelector('#cd-code-input');
-  phoneInput.value = myPhone;
-  phoneInput.focus();
+  nameInput.value = myName;
+  (myName ? codeInput : nameInput).focus();
   codeInput.addEventListener('input', () => { codeInput.value = codeInput.value.toUpperCase(); });
   codeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') codeInput.focus(); });
   body.querySelector('#cd-join-btn').onclick = go;
   body.querySelector('#cd-back-btn').onclick = leave;
 
   function go() {
-    const phone = phoneInput.value.trim();
+    const name = nameInput.value.trim();
     const val = codeInput.value.trim().toUpperCase();
-    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
-      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
-      render();
-      return;
-    }
+    if (!validName(name)) { errorMsg = 'Enter your name (2-24 characters).'; render(); return; }
     if (val.length !== 4) { errorMsg = 'Codes are 4 characters.'; render(); return; }
     errorMsg = '';
-    joinRoom(val, phone);
+    saveProfileName(name);
+    joinRoom(val, name);
   }
 }
 
@@ -561,10 +801,10 @@ function renderGuestJoinFromLink() {
   roomBadge.textContent = 'ROOM ' + inviteCode;
   body.innerHTML = `
     <div class="cd-eyebrow" style="opacity:0.7">YOU'VE BEEN INVITED</div>
-    <div class="cd-lede">Someone locked in a word and challenged you to crack it. Enter your mobile number to join room <strong style="color:var(--gold)">${inviteCode}</strong>.</div>
+    <div class="cd-lede">Someone locked in a word and challenged you to crack it. Enter your name to join room <strong style="color:var(--gold)">${inviteCode}</strong>.</div>
     <div class="cd-field">
-      <span class="cd-field-label">YOUR MOBILE NUMBER</span>
-      <input class="cd-input" id="cd-phone-input" placeholder="+971 5X XXX XXXX" maxlength="20" autocomplete="tel" />
+      <span class="cd-field-label">YOUR NAME</span>
+      <input class="cd-input" id="cd-name-input" placeholder="e.g. Vernon" maxlength="24" autocomplete="name" />
     </div>
     <div class="cd-error" id="cd-error">${errorMsg}</div>
     <div style="display:flex; gap:10px;">
@@ -572,22 +812,44 @@ function renderGuestJoinFromLink() {
       <button class="cd-btn cd-btn-ghost" id="cd-back-btn">Not your invite</button>
     </div>
   `;
-  const phoneInput = body.querySelector('#cd-phone-input');
-  phoneInput.focus();
-  phoneInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
+  const nameInput = body.querySelector('#cd-name-input');
+  nameInput.value = myName;
+  nameInput.focus();
+  nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') go(); });
   body.querySelector('#cd-join-btn').onclick = go;
   body.querySelector('#cd-back-btn').onclick = leave;
 
   function go() {
-    const phone = phoneInput.value.trim();
-    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
-      errorMsg = 'Enter a valid mobile number (digits, spaces, + and - are fine).';
-      render();
-      return;
-    }
+    const name = nameInput.value.trim();
+    if (!validName(name)) { errorMsg = 'Enter your name (2-24 characters).'; render(); return; }
     errorMsg = '';
-    joinRoom(inviteCode, phone);
+    saveProfileName(name);
+    joinRoom(inviteCode, name);
   }
+}
+
+function renderHistory() {
+  const rows = history.length ? history.map(h => {
+    const label = h.role === 'host'
+      ? (h.result === 'cracked' ? `${h.opponent} cracked it` : `${h.opponent} couldn't crack it`)
+      : (h.result === 'cracked' ? 'You cracked it' : "You didn't crack it");
+    const date = new Date(h.ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+    return `
+      <div class="cd-history-row">
+        <div>
+          <div class="cd-history-word">${h.word}</div>
+          <div class="cd-history-meta">${label} &middot; ${date}</div>
+        </div>
+        <div class="cd-history-result ${h.result}">${h.result === 'cracked' ? '&#10003; CRACKED' : '&#10005; MISSED'}</div>
+      </div>`;
+  }).join('') : `<div class="cd-history-empty">No rounds played yet. Every round you finish shows up here, win or lose.</div>`;
+
+  body.innerHTML = `
+    <div class="cd-eyebrow" style="opacity:0.7">YOUR ROUNDS</div>
+    <div class="cd-history-list">${rows}</div>
+    <button class="cd-btn cd-btn-ghost" id="cd-history-back">Back</button>
+  `;
+  body.querySelector('#cd-history-back').onclick = closeHistory;
 }
 
 function renderPlay() {
@@ -598,10 +860,24 @@ function renderPlay() {
   const lost = room.status === 'lost';
   const waiting = room.status === 'waiting';
 
-  const tileHtml = tiles.map(t => t.gap
-    ? `<div class="cd-tile gap"></div>`
-    : `<div class="cd-tile ${t.ch ? 'revealed' : ''}">${t.ch}</div>`
-  ).join('');
+  const newLetters = room.guessedLetters.filter(l => !previousGuessedLetters.includes(l));
+  const justLetter = newLetters.length === 1 ? newLetters[0] : null;
+  const justCorrect = justLetter ? room.word.includes(justLetter) : null;
+
+  if (justLetter) {
+    playSound(justCorrect ? 'correct' : 'wrong');
+  }
+
+  const tileHtml = tiles.map(t => {
+    if (t.gap) return `<div class="cd-tile gap"></div>`;
+    if (!t.ch) return `<div class="cd-tile"></div>`;
+    const isFresh = justCorrect && t.ch === justLetter;
+    return `<div class="cd-tile shown ${isFresh ? 'revealed' : ''}">${t.ch}</div>`;
+  }).join('');
+
+  const totalLetters = new Set(room.word.replace(/ /g, '').split('')).size;
+  const foundLetters = new Set(room.guessedLetters.filter(l => room.word.includes(l))).size;
+  const progressPct = totalLetters ? Math.round((foundLetters / totalLetters) * 100) : 0;
 
   const keyboardHtml = KEYROWS.map(row => `
     <div class="cd-krow">
@@ -609,9 +885,10 @@ function renderPlay() {
         const guessed = room.guessedLetters.includes(letter);
         const wrong = guessed && !room.word.includes(letter);
         const correct = guessed && room.word.includes(letter);
+        const justCls = letter === justLetter ? (justCorrect ? 'just-correct' : 'just-wrong') : '';
         const cls = wrong ? 'wrong' : correct ? 'correct' : '';
         const disabled = (role !== 'guest') || guessed || room.status !== 'playing';
-        return `<button class="cd-key ${cls}" data-letter="${letter}" ${disabled ? 'disabled' : ''}>${letter}</button>`;
+        return `<button class="cd-key ${cls} ${justCls}" data-letter="${letter}" ${disabled ? 'disabled' : ''}>${letter}</button>`;
       }).join('')}
     </div>
   `).join('');
@@ -622,30 +899,35 @@ function renderPlay() {
 
   const roleLabel = role === 'host' ? 'YOU SET THE WORD' : 'YOU ARE GUESSING';
   let statusMsg = '';
-  if (role === 'host' && waiting) statusMsg = 'Send the invite link below. The board updates live the instant your opponent joins.';
-  else if (role === 'host') statusMsg = 'Watching live — every guess is confirmed automatically against your word.';
-  else if (role === 'guest') statusMsg = 'Pick a letter. You\'ll know instantly if it\'s in the word and exactly where.';
+  if (role === 'host' && waiting) statusMsg = 'Share your invite below \u2014 the board updates the instant your opponent joins.';
+  else if (role === 'host') statusMsg = 'Watching live \u2014 every guess is checked against your word automatically.';
+  else if (role === 'guest') statusMsg = 'Pick a letter. You will know instantly whether it is in the word.';
 
   const link = inviteLink(roomCode);
-  const waText = encodeURIComponent(`I locked in a word for Cipher Duel — crack it if you can. Join here: ${link} (room code ${roomCode})`);
+  const waText = encodeURIComponent(`${myName || 'Someone'} locked in a word for Cipher Duel \u2014 crack it if you can. Join room ${roomCode}: ${link}`);
+  const canShare = typeof navigator !== 'undefined' && !!navigator.share;
+  const canPickContact = typeof navigator !== 'undefined' && !!(navigator.contacts && navigator.contacts.select);
   const inviteBlock = (role === 'host' && waiting) ? `
     <div class="cd-field" style="max-width:380px;">
-      <span class="cd-field-label">INVITE LINK</span>
+      <span class="cd-field-label">INVITE LINK &middot; ROOM ${roomCode}</span>
       <div class="cd-link-row">
         <div class="cd-link-box">${link}</div>
         <button class="cd-btn cd-btn-ghost" id="cd-copy-btn" style="padding:10px 14px;">Copy</button>
       </div>
       <div class="cd-copied">${copiedMsg}</div>
     </div>
-    <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener" class="cd-btn cd-btn-whatsapp" id="cd-wa-btn">
-      Invite via WhatsApp
-    </a>
+    <div class="cd-share-row">
+      ${canShare ? `<button class="cd-btn" id="cd-share-btn">Share invite</button>` : ''}
+      <a href="https://wa.me/?text=${waText}" target="_blank" rel="noopener" class="cd-btn cd-btn-whatsapp" id="cd-wa-btn">WhatsApp</a>
+      ${canPickContact ? `<button class="cd-btn cd-btn-ghost" id="cd-contact-btn">Pick a contact</button>` : ''}
+    </div>
+    <div class="cd-sub-lede">"Share invite" opens your device's own share sheet, so you can pick anyone from Messages, WhatsApp, Mail or your contacts directly \u2014 no typing a number.</div>
   ` : '';
 
   const playersRow = `
     <div class="cd-players-row">
-      <div class="cd-chip ${role === 'host' ? 'me' : ''} live"><span class="cd-chip-dot"></span>HOST ${maskPhone(room.hostPhone)}</div>
-      <div class="cd-chip ${role === 'guest' ? 'me' : ''} ${room.guestJoined ? 'live' : ''}"><span class="cd-chip-dot"></span>GUESSER ${room.guestJoined ? maskPhone(room.guestPhone) : 'waiting…'}</div>
+      <div class="cd-chip ${role === 'host' ? 'me' : ''} live"><span class="cd-chip-dot"></span>${room.hostName || 'Host'}</div>
+      <div class="cd-chip ${role === 'guest' ? 'me' : ''} ${room.guestJoined ? 'live' : ''}"><span class="cd-chip-dot"></span>${room.guestJoined ? (room.guestName || 'Guest') : 'Waiting\u2026'}</div>
     </div>
   `;
 
@@ -670,21 +952,23 @@ function renderPlay() {
         </div>
       </div>
 
+      <div class="cd-toast-slot ${justLetter ? (justCorrect ? 'correct pop' : 'wrong pop') : ''}">${justLetter ? (justCorrect ? `&#10003; "${justLetter}" is in the word!` : `&#10005; "${justLetter}" isn't in the word`) : ''}</div>
+
       ${banner}
 
       <div class="cd-word-row">${tileHtml}</div>
 
-      ${role === 'guest' && !won && !lost ? `<div class="cd-keyboard">${keyboardHtml}</div>` : ''}
+      ${!won && !lost ? `<div class="cd-progress-track"><div class="cd-progress-fill" style="width:${progressPct}%;"></div></div>` : ''}
 
-      ${room.guessedLetters.length ? `<div class="cd-guessed-line">GUESSED: ${room.guessedLetters.join(' ')}</div>` : ''}
+      ${role === 'guest' && !won && !lost ? `<div class="cd-keyboard">${keyboardHtml}</div>` : ''}
       ` : ''}
 
       <div style="display:flex; gap:10px;">
         ${role === 'host' && (won || lost) ? `<button class="cd-btn" id="cd-newround-btn">Set a new word</button>` : ''}
-        <button class="cd-btn cd-btn-ghost" id="cd-leave-btn">Leave round</button>
+        <button class="cd-btn cd-btn-ghost" id="cd-leave-btn">Back to lobby</button>
       </div>
 
-      <div class="cd-footer-note">Mobile numbers are self-entered player IDs, not SMS-verified — they're just here to tell the two of you apart. Game state syncs live via Firestore, so both of you see updates within a second or two, on any device, anywhere.</div>
+      <div class="cd-footer-note">Names are self-entered, not verified \u2014 they're just here to tell the two of you apart. Game state syncs live via Firestore, on any device, anywhere.</div>
     </div>
   `;
 
@@ -695,19 +979,42 @@ function renderPlay() {
   }
   const copyBtn = body.querySelector('#cd-copy-btn');
   if (copyBtn) copyBtn.onclick = () => copyToClipboard(link);
+  const shareBtn = body.querySelector('#cd-share-btn');
+  if (shareBtn) shareBtn.onclick = shareInvite;
+  const contactBtn = body.querySelector('#cd-contact-btn');
+  if (contactBtn) contactBtn.onclick = pickContact;
   const newRoundBtn = body.querySelector('#cd-newround-btn');
   if (newRoundBtn) newRoundBtn.onclick = newRound;
   body.querySelector('#cd-leave-btn').onclick = leave;
+
+  previousGuessedLetters = [...room.guessedLetters];
+
+  if (won && lastCelebratedStatus !== 'won') {
+    lastCelebratedStatus = 'won';
+    playSound('win');
+    spawnConfetti();
+    if (!resultRecorded) { recordResult('cracked'); resultRecorded = true; }
+  } else if (lost && lastCelebratedStatus !== 'lost') {
+    lastCelebratedStatus = 'lost';
+    playSound('lose');
+    shakeRoot();
+    if (!resultRecorded) { recordResult('not-cracked'); resultRecorded = true; }
+  }
 }
 
 function render() {
+  updateHeaderChrome();
   if (!firebaseReady) { renderSetupNeeded(); return; }
   if (phase === 'lobby') renderLobby();
   else if (phase === 'hostSetup') renderHostSetup();
   else if (phase === 'guestJoin') renderGuestJoin();
   else if (phase === 'guestJoinFromLink') renderGuestJoinFromLink();
   else if (phase === 'hostPlay' || phase === 'guestPlay') renderPlay();
+  else if (phase === 'history') renderHistory();
 }
+
+document.getElementById('cd-sound-toggle').onclick = toggleSound;
+document.getElementById('cd-history-toggle').onclick = openHistory;
 
 render();
 </script>
